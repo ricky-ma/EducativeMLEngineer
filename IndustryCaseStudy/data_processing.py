@@ -95,6 +95,17 @@ def load_dataset(train_file='train.tfrecords', eval_file='eval.tfrecords'):
     return train_dataset, eval_dataset
 
 
+def create_tensorflow_dataset(file, batch_size=50, shuffle=True, training=True, count=1000, has_labels=True):
+    dataset = tf.data.TFRecordDataset(file)
+    example_spec = create_example_spec(has_labels)
+    parse_fn = lambda ser_ex: parse_features(ser_ex, example_spec, True)
+    dataset = dataset.map(parse_fn)
+    dataset = dataset.batch(batch_size)
+    if shuffle: dataset = dataset.shuffle(421570)
+    if training: dataset = dataset.repeat(count=count)
+    return dataset
+
+
 # Add numeric feature columns to a list of dataset feature columns
 def add_numeric_columns(feature_columns):
     numeric_features = ['Size', 'Temperature', 'Fuel_Price', 'CPI', 'Unemployment']
